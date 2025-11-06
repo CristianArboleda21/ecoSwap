@@ -10,6 +10,8 @@ load-dotenv = "*"
 python-dateutil = "*"
 django-cors-headers = "*"
 pymysql = "*"
+pyjwt = "*"
+passlib = "*"
 
 [dev-packages]
 
