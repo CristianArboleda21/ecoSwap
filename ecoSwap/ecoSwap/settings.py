@@ -10,8 +10,9 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
-from pathlib import Path
 from dotenv import load_dotenv
+from datetime import timedelta
+from pathlib import Path
 import os
 
 load_dotenv()
@@ -29,11 +30,21 @@ SECRET_KEY = 'django-insecure-t98l=m2f+o_z_zjidu-)i^*3#^f=2n-33$8y+2uw1=s$wc8+_i
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
+CORS_ALLOW_HEADERS = [ 
+    'accept', 
+    'accept-encoding', 
+    'authorization', 
+    'content-type', 
+    'dnt', 
+    'origin', 
+    'user-agent', 
+    'x-csrftoken', 
+    'x-requested-with',
+]
 
 # Application definition
-
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -41,6 +52,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'corsheaders',
     'users',
     'reputation',
     'publications',
@@ -50,6 +62,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -78,7 +91,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'ecoSwap.wsgi.application'
 
-
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
@@ -93,7 +105,38 @@ DATABASES = {
     }
 }
 
+# JWT Configuration 
+JWT_SECRET_KEY = os.environ.get('JWT_SECRET_KEY') 
+JWT_ALGORITHM = 'HS256' 
+# Simple JWT settings 
+SIMPLE_JWT = { 
+    'ACCESS_TOKEN_LIFETIME': timedelta(days=1), # 1 día 
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=7), # 7 días 
+    'ROTATE_REFRESH_TOKENS': True, 
+    'BLACKLIST_AFTER_ROTATION': True, 
+    'UPDATE_LAST_LOGIN': True, 
+    'ALGORITHM': JWT_ALGORITHM, 
+    'SIGNING_KEY': JWT_SECRET_KEY,
+    'VERIFYING_KEY': None, 
+    'AUDIENCE': None, 
+    'ISSUER': None, 
+    'AUTH_HEADER_TYPES': ('Bearer',), 
+    'AUTH_HEADER_NAME': 'HTTP_AUTHORIZATION', 
+    'USER_ID_FIELD': 'email', 
+    'USER_ID_CLAIM': 'email', 
+    'AUTH_TOKEN_CLASSES': ('rest_framework_simplejwt.tokens.AccessToken',), 
+    'TOKEN_TYPE_CLAIM': 'token_type',
+    'JTI_CLAIM': 'jti'
+}
 
+REST_FRAMEWORK = { 
+    'DEFAULT_AUTHENTICATION_CLASSES': [ 
+        'users.authentications.CustomJWTAuthentication', 
+    ], 
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated', 
+    ], 
+}
 
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
@@ -124,7 +167,7 @@ TIME_ZONE = 'UTC'
 USE_I18N = True
 
 USE_TZ = True
-
+TIME_ZONE = "America/Bogota"
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/

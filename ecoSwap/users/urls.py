@@ -2,5 +2,10 @@ from django.urls import path
 from users.views import views
 
 urlpatterns = [
-    path('public/', views.public_view, name='public_view'),
+    path('register-user', views.register, name='register'),
+    path('login', views.login, name='login'),
+    path('logout', views.logout, name='logout'),
+    path('profile', views.get_user_profile, name='profile'),
+    path('send-code', views.send_code_password_reset, name='send_code_password_reset'),
+    path('reset-password', views.reset_password_code, name='reset_password_code'),
 ]
