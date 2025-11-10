@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 from comunications.services.email_service import EmailService 
 from passlib.hash import pbkdf2_sha256
 from .jwt_service import JWTService 
-from ..models import Users
+from ..models import User
 from django.utils import timezone
 
 import re, random
@@ -36,7 +36,7 @@ class AuthService:
         return True, "OK"
     
     @classmethod
-    def create_user(cls, name: str, email: str, phone: str, password: str, address: str) -> Users:  
+    def create_user(cls, name: str, email: str, phone: str, password: str, address: str) -> User:  
         """Crea un nuevo usuario"""  
 
         # Validar email  
@@ -49,13 +49,13 @@ class AuthService:
             return None, msg  
         
         # Verificar si ya existe  
-        user_exist = Users.objects.filter(email=email).first()
+        user_exist = User.objects.filter(email=email).first()
         if user_exist:  
             return None, "El email ya está registrado" 
          
         try:  
             # Crear usuario  
-            user = Users.objects.create(name=name, email=email.lower(), phone=phone, address=address)  
+            user = User.objects.create(name=name, email=email.lower(), phone=phone, address=address)  
             user.set_password(password)  
             user.save()  
               
@@ -71,7 +71,7 @@ class AuthService:
         """  
         try:  
         # Buscar usuario  
-            user = Users.objects.filter(email=email.lower()).first()  
+            user = User.objects.filter(email=email.lower()).first()  
 
             if not user:  
                 return None, "Usuario no encontrado"    
@@ -104,7 +104,7 @@ class AuthService:
             return None, f"Error al iniciar sesión: {str(e)}"
         
     @classmethod
-    def verify_token(cls, token: str) -> Tuple[Optional[Users], str]:  
+    def verify_token(cls, token: str) -> Tuple[Optional[User], str]:  
         """Verifica un access token y retorna el usuario"""  
 
         payload, msg = JWTService.verify_access_token(token)  
@@ -113,7 +113,7 @@ class AuthService:
         
         # Obtener usuario  
         email = payload.get('email')  
-        user = Users.objects.filter(email=email).first()  
+        user = User.objects.filter(email=email).first()  
         if not user:  
             return None, msg
         
@@ -122,7 +122,7 @@ class AuthService:
     @classmethod
     def request_password_reset(cls, email: str):
 
-        user = Users.objects.filter(email=email.lower()).first()  
+        user = User.objects.filter(email=email.lower()).first()  
         if not user:  
             return False, "Usuario no encontrado"
         
@@ -133,10 +133,11 @@ class AuthService:
         user.reset_code_used = False
         user.save()
 
-        email_sent = EmailService.send_password_reset_email(
+        email_sent = EmailService.send_email(
             to_email=email,
+            reason='reset_code',
+            user_name=user.name,
             reset_code=reset_code,
-            user_name=user.name
         )
 
         if not email_sent:
@@ -148,7 +149,7 @@ class AuthService:
     def reset_password_with_token(cls, email: str, code: str, new_password: str, confirm_password: str):
         """Restablece la contraseña usando el código de reseteo enviado por email"""
         
-        user = Users.objects.filter(email=email.lower()).first()  
+        user = User.objects.filter(email=email.lower()).first()  
         if not user:  
             return False, "Usuario no encontrado"
         
@@ -179,7 +180,7 @@ class AuthService:
         return True, "Contraseña restablecida exitosamente"
     
     @classmethod
-    def logout(cls, user: Users) -> bool:
+    def logout(cls, user: User) -> bool:
         """Cierra la sesión del usuario invalidando sus tokens"""
         try:
             user.token = None

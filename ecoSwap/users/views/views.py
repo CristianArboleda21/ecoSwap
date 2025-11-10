@@ -2,9 +2,9 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny, IsAuthenticated 
 from rest_framework.response import Response 
 from ..services.auth_service import AuthService
-from ..serializers import UsersSerializer
+from ..serializers import UserSerializer
 from rest_framework import status 
-from ..models import Users
+from ..models import User
 
 
 @api_view(['POST']) 
@@ -68,7 +68,7 @@ def get_user_profile(request):
     """  
     Obtiene el perfil del usuario autenticado  
     """  
-    user: Users = request.user  
+    user: User = request.user  
 
     # if not user:
     #     return Response({"error": "El usuario no esta logueado", "status" : 400}, status=status.HTTP_400_BAD_REQUEST)
@@ -79,11 +79,11 @@ def get_user_profile(request):
         return Response({"error": msg, "status" : 401}, status=status.HTTP_401_UNAUTHORIZED)
     
     try:
-        user_bd = Users.objects.get(email=user.email)
-        data = UsersSerializer(user_bd).data
+        user_bd = User.objects.get(email=user.email)
+        data = UserSerializer(user_bd).data
         return Response(data, status=status.HTTP_200_OK)
     
-    except Users.DoesNotExist:
+    except User.DoesNotExist:
         return Response({"error": "Usuario no encontrado", "status" : 404}, status=status.HTTP_404_NOT_FOUND)
     
     except Exception as e:
