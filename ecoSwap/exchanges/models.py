@@ -10,7 +10,7 @@ class Exchange(models.Model):
         ACCEPTED = "Aceptada"
         REJECTED = "Rechazada"
         CANCELLED = "Cancelada"
-        COMPLETED = "Completada"
+        # COMPLETED = "Completada"
 
     # Item que recibe la oferta (publicación del dueño)
     requested_item = models.ForeignKey(

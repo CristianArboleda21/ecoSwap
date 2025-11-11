@@ -7,7 +7,6 @@ class User(models.Model):
     email = models.EmailField(unique=True)
     phone = models.CharField(max_length=10,unique=True)
     password = models.CharField(max_length=256)
-    reputation = models.IntegerField(default=0)
     address = models.CharField(max_length=100)
     created_at = models.DateTimeField(auto_now_add=True)
 
