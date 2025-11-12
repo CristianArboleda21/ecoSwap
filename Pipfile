@@ -12,6 +12,9 @@ django-cors-headers = "*"
 pymysql = "*"
 pyjwt = "*"
 passlib = "*"
+pytest = "*"
+pytest-django = "*"
+cryptography = "*"
 
 [dev-packages]
 

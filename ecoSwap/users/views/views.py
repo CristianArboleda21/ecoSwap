@@ -69,25 +69,16 @@ def get_user_profile(request):
     Obtiene el perfil del usuario autenticado  
     """  
     user: User = request.user  
-
-    # if not user:
-    #     return Response({"error": "El usuario no esta logueado", "status" : 400}, status=status.HTTP_400_BAD_REQUEST)
-
-    token = user.token
-    verify_token, msg = AuthService.verify_token(token) 
-    if not verify_token:
-        return Response({"error": msg, "status" : 401}, status=status.HTTP_401_UNAUTHORIZED)
     
     try:
-        user_bd = User.objects.get(email=user.email)
-        data = UserSerializer(user_bd).data
-        return Response(data, status=status.HTTP_200_OK)
-    
-    except User.DoesNotExist:
-        return Response({"error": "Usuario no encontrado", "status" : 404}, status=status.HTTP_404_NOT_FOUND)
+        serializer = UserSerializer(user)
+        return Response(serializer.data, status=status.HTTP_200_OK)
     
     except Exception as e:
-        return Response({"error": f"Error al obtener perfil: {str(e)}", "status" : 500}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return Response(
+            {"error": f"Error al obtener perfil: {str(e)}", "status": 500}, 
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
 
 @api_view(['GET']) 
 @permission_classes([IsAuthenticated]) 

@@ -1,8 +1,10 @@
+from django.contrib.auth.models import AbstractUser
 from passlib.hash import pbkdf2_sha256
 from django.db import models
 
 # Create your models here.
-class User(models.Model):
+class User(AbstractUser):
+    username = models.CharField(max_length=150, blank=True, null=True, unique=False)
     name = models.CharField(max_length=100)
     email = models.EmailField(unique=True)
     phone = models.CharField(max_length=10,unique=True)
@@ -19,13 +21,16 @@ class User(models.Model):
     reset_code_expires = models.DateTimeField(blank=True, null=True)
     reset_code_used = models.BooleanField(default=False)
 
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = []
+
     @property
     def is_authenticated(self):
         return True
     
     @property
     def is_anonymous(self):
-        return True
+        return False
     
     def set_password(self, password: str): 
         """Encripta y guarda la contraseña usando PBKDF2-SHA256""" 

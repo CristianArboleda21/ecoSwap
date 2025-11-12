@@ -55,7 +55,8 @@ class AuthService:
          
         try:  
             # Crear usuario  
-            user = User.objects.create(name=name, email=email.lower(), phone=phone, address=address)  
+            username=f"{name.split(' ')[0]}{random.randint(1000,9999)}"
+            user = User.objects.create(name=name, email=email.lower(), phone=phone, address=address, username=username)  
             user.set_password(password)  
             user.save()  
               
@@ -70,7 +71,7 @@ class AuthService:
         Autentica usuario y genera tokens JWT  
         """  
         try:  
-        # Buscar usuario  
+            # Buscar usuario  
             user = User.objects.filter(email=email.lower()).first()  
 
             if not user:  

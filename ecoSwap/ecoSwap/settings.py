@@ -30,6 +30,8 @@ SECRET_KEY = 'django-insecure-t98l=m2f+o_z_zjidu-)i^*3#^f=2n-33$8y+2uw1=s$wc8+_i
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
+AUTH_USER_MODEL = 'users.User'
+
 ALLOWED_HOSTS = ['*']
 
 CORS_ALLOW_HEADERS = [ 
