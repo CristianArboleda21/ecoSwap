@@ -1,7 +1,7 @@
 from rest_framework.authentication import BaseAuthentication 
 from rest_framework.exceptions import AuthenticationFailed 
 from .services.jwt_service import JWTService 
-from .models import User
+from .models import UserApp
 
 class CustomJWTAuthentication(BaseAuthentication): 
     """ Autenticación JWT personalizada """ 
@@ -33,7 +33,7 @@ class CustomJWTAuthentication(BaseAuthentication):
         if not email:
              raise AuthenticationFailed('Token no contiene email') 
         
-        user = User.objects.filter(email=email.lower()).first()
+        user = UserApp.objects.filter(email=email.lower()).first()
         if not user: 
             raise AuthenticationFailed('Usuario no encontrado') 
         

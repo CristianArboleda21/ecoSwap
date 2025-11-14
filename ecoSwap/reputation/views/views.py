@@ -3,7 +3,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
 
-from users.models import User
+from users.models import UserApp
 
 from ..services.reputation_service import ReputationService
 

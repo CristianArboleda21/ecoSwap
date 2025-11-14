@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 from comunications.services.email_service import EmailService 
 from passlib.hash import pbkdf2_sha256
 from .jwt_service import JWTService 
-from ..models import User
+from ..models import UserApp
 from django.utils import timezone
 
 import re, random
@@ -36,7 +36,7 @@ class AuthService:
         return True, "OK"
     
     @classmethod
-    def create_user(cls, name: str, email: str, phone: str, password: str, address: str) -> User:  
+    def create_user(cls, name: str, email: str, phone: str, password: str, address: str) -> UserApp:  
         """Crea un nuevo usuario"""  
 
         # Validar email  
@@ -49,14 +49,14 @@ class AuthService:
             return None, msg  
         
         # Verificar si ya existe  
-        user_exist = User.objects.filter(email=email).first()
+        user_exist = UserApp.objects.filter(email=email).first()
         if user_exist:  
             return None, "El email ya está registrado" 
          
         try:  
             # Crear usuario  
             username=f"{name.split(' ')[0]}{random.randint(1000,9999)}"
-            user = User.objects.create(name=name, email=email.lower(), phone=phone, address=address, username=username)  
+            user = UserApp.objects.create(name=name, email=email.lower(), phone=phone, address=address, username=username)  
             user.set_password(password)  
             user.save()  
               
@@ -72,7 +72,7 @@ class AuthService:
         """  
         try:  
             # Buscar usuario  
-            user = User.objects.filter(email=email.lower()).first()  
+            user = UserApp.objects.filter(email=email.lower()).first()  
 
             if not user:  
                 return None, "Usuario no encontrado"    
@@ -105,7 +105,7 @@ class AuthService:
             return None, f"Error al iniciar sesión: {str(e)}"
         
     @classmethod
-    def verify_token(cls, token: str) -> Tuple[Optional[User], str]:  
+    def verify_token(cls, token: str) -> Tuple[Optional[UserApp], str]:  
         """Verifica un access token y retorna el usuario"""  
 
         payload, msg = JWTService.verify_access_token(token)  
@@ -114,7 +114,7 @@ class AuthService:
         
         # Obtener usuario  
         email = payload.get('email')  
-        user = User.objects.filter(email=email).first()  
+        user = UserApp.objects.filter(email=email).first()  
         if not user:  
             return None, msg
         
@@ -123,7 +123,7 @@ class AuthService:
     @classmethod
     def request_password_reset(cls, email: str):
 
-        user = User.objects.filter(email=email.lower()).first()  
+        user = UserApp.objects.filter(email=email.lower()).first()  
         if not user:  
             return False, "Usuario no encontrado"
         
@@ -150,7 +150,7 @@ class AuthService:
     def reset_password_with_token(cls, email: str, code: str, new_password: str, confirm_password: str):
         """Restablece la contraseña usando el código de reseteo enviado por email"""
         
-        user = User.objects.filter(email=email.lower()).first()  
+        user = UserApp.objects.filter(email=email.lower()).first()  
         if not user:  
             return False, "Usuario no encontrado"
         
@@ -181,7 +181,7 @@ class AuthService:
         return True, "Contraseña restablecida exitosamente"
     
     @classmethod
-    def logout(cls, user: User) -> bool:
+    def logout(cls, user: UserApp) -> bool:
         """Cierra la sesión del usuario invalidando sus tokens"""
         try:
             user.token = None

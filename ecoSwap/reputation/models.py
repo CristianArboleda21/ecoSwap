@@ -1,10 +1,10 @@
 from django.db import models
-from users.models import User
+from users.models import UserApp
 from exchanges.models import Exchange
 
 class Reputation(models.Model):
     user = models.OneToOneField(
-        User, 
+        UserApp, 
         on_delete=models.CASCADE,
         related_name="reputation_profile"   # ✅ evita choque con User.reputation
     )
@@ -21,13 +21,13 @@ class detailReputation(models.Model):
     exchange = models.ForeignKey(Exchange, on_delete=models.CASCADE)
 
     rated_user = models.ForeignKey(
-        User, 
+        UserApp, 
         on_delete=models.CASCADE,
         related_name='received_reviews'    # nombre único
     )
 
     reviewer = models.ForeignKey(
-        User, 
+        UserApp, 
         on_delete=models.CASCADE,
         related_name='written_reviews'     # nombre único
     )

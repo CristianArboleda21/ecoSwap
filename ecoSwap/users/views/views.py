@@ -2,9 +2,9 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny, IsAuthenticated 
 from rest_framework.response import Response 
 from ..services.auth_service import AuthService
-from ..serializers import UserSerializer
+from ..serializers import UserAppSerializer
 from rest_framework import status 
-from ..models import User
+from ..models import UserApp
 
 
 @api_view(['POST']) 
@@ -68,10 +68,10 @@ def get_user_profile(request):
     """  
     Obtiene el perfil del usuario autenticado  
     """  
-    user: User = request.user  
+    user: UserApp = request.user  
     
     try:
-        serializer = UserSerializer(user)
+        serializer = UserAppSerializer(user)
         return Response(serializer.data, status=status.HTTP_200_OK)
     
     except Exception as e:

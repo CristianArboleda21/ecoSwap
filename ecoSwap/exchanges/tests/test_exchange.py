@@ -7,7 +7,7 @@ from rest_framework.test import APIClient
 from rest_framework import status
 from unittest.mock import patch, MagicMock
 
-from users.models import User
+from users.models import UserApp
 from publications.models import Publications
 from exchanges.models import Exchange
 from exchanges.services.exchange_service import ExchangeService
@@ -19,7 +19,7 @@ class ExchangeModelTest(TestCase):
     
     def setUp(self):
         # Crear usuarios
-        self.user1 = User.objects.create(
+        self.user1 = UserApp.objects.create(
             name="Usuario1",
             email="user1@test.com",
             phone="1111111111",
@@ -28,7 +28,7 @@ class ExchangeModelTest(TestCase):
         self.user1.set_password("Password123!")
         self.user1.save()
         
-        self.user2 = User.objects.create(
+        self.user2 = UserApp.objects.create(
             name="Usuario2",
             email="user2@test.com",
             phone="2222222222",
@@ -102,7 +102,7 @@ class ExchangeServiceTest(TestCase):
     
     def setUp(self):
         # Crear usuarios
-        self.user1 = User.objects.create(
+        self.user1 = UserApp.objects.create(
             name="Usuario1",
             email="user1@test.com",
             phone="1111111111",
@@ -111,7 +111,7 @@ class ExchangeServiceTest(TestCase):
         self.user1.set_password("Password123!")
         self.user1.save()
         
-        self.user2 = User.objects.create(
+        self.user2 = UserApp.objects.create(
             name="Usuario2",
             email="user2@test.com",
             phone="2222222222",
@@ -259,7 +259,7 @@ class ExchangeServiceTest(TestCase):
         mock_send_email.return_value = True
         
         # Crear un tercer usuario
-        user3 = User.objects.create(
+        user3 = UserApp.objects.create(
             name="Usuario3",
             email="user3@test.com",
             phone="3333333333",
@@ -382,7 +382,7 @@ class ExchangeViewsTest(TestCase):
         self.client = APIClient()
         
         # Crear usuarios
-        self.user1 = User.objects.create(
+        self.user1 = UserApp.objects.create(
             name="Usuario1",
             email="user1@test.com",
             phone="1111111111",
@@ -391,7 +391,7 @@ class ExchangeViewsTest(TestCase):
         self.user1.set_password("Password123!")
         self.user1.save()
         
-        self.user2 = User.objects.create(
+        self.user2 = UserApp.objects.create(
             name="Usuario2",
             email="user2@test.com",
             phone="2222222222",
@@ -627,7 +627,7 @@ class ExchangeIntegrationTest(TestCase):
         self.client = APIClient()
         
         # Crear usuarios
-        self.user1 = User.objects.create(
+        self.user1 = UserApp.objects.create(
             name="Usuario1",
             email="user1@test.com",
             phone="1111111111",
@@ -636,7 +636,7 @@ class ExchangeIntegrationTest(TestCase):
         self.user1.set_password("Password123!")
         self.user1.save()
         
-        self.user2 = User.objects.create(
+        self.user2 = UserApp.objects.create(
             name="Usuario2",
             email="user2@test.com",
             phone="2222222222",

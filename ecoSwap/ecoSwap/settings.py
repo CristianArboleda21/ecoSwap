@@ -14,6 +14,8 @@ from dotenv import load_dotenv
 from datetime import timedelta
 from pathlib import Path
 import os
+import sys
+
 
 load_dotenv()
 
@@ -29,8 +31,6 @@ SECRET_KEY = 'django-insecure-t98l=m2f+o_z_zjidu-)i^*3#^f=2n-33$8y+2uw1=s$wc8+_i
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
-
-AUTH_USER_MODEL = 'users.User'
 
 ALLOWED_HOSTS = ['*']
 
@@ -56,11 +56,11 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'corsheaders',
     'users',
-    'reputation',
     'publications',
-    'logistic',
     'exchanges',
     'comunications',
+    'reputation',
+    'logistic',
 ]
 
 MIDDLEWARE = [
@@ -106,6 +106,15 @@ DATABASES = {
         'PORT':  os.environ["MYSQL_PORT"],            # El puerto de MySQL (generalmente 3306)
     }
 }
+
+# Usar SQLite en memoria para tests (más rápido y sin problemas)
+if 'test' in sys.argv:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': ':memory:',
+        }
+    }
 
 # JWT Configuration 
 JWT_SECRET_KEY = os.environ.get('JWT_SECRET_KEY') 

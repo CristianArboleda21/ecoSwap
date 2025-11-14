@@ -3,7 +3,7 @@ from passlib.hash import pbkdf2_sha256
 from django.db import models
 
 # Create your models here.
-class User(AbstractUser):
+class UserApp(models.Model):
     username = models.CharField(max_length=150, blank=True, null=True, unique=False)
     name = models.CharField(max_length=100)
     email = models.EmailField(unique=True)
@@ -57,6 +57,6 @@ class User(AbstractUser):
             raise
 
 class ImagesUsers(models.Model):
-    user: models.ForeignKey = models.ForeignKey(User, on_delete=models.CASCADE)
+    user: models.ForeignKey = models.ForeignKey(UserApp, on_delete=models.CASCADE)
     image: models.TextField = models.TextField()
     uploaded_at: models.DateTimeField = models.DateTimeField(auto_now_add=True)

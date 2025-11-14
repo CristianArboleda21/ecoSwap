@@ -8,7 +8,7 @@ from django.urls import reverse
 from rest_framework.test import APIClient
 from rest_framework import status
 from django.conf import settings
-from users.models import User
+from users.models import UserApp
 from users.services.auth_service import AuthService
 from users.services.jwt_service import JWTService
 from unittest.mock import patch, MagicMock
@@ -16,7 +16,7 @@ from unittest.mock import patch, MagicMock
 
 class UserModelTest(TestCase):
     def setUp(self):
-        self.user = User.objects.create(
+        self.user = UserApp.objects.create(
             name="Juan Perez",
             email="juan@example.com",
             phone="1234567890",
@@ -49,7 +49,7 @@ class AuthServiceTest(TestCase):
     def setUp(self):
         self.valid_email = "test@example.com"
         self.valid_password = "Password123!"
-        self.user = User.objects.create(
+        self.user = UserApp.objects.create(
             name="Tester",
             email=self.valid_email,
             phone="1234567890",
@@ -310,7 +310,7 @@ class AuthServiceTest(TestCase):
 
 class JWTServiceTest(TestCase):
     def setUp(self):
-        self.user = User.objects.create(
+        self.user = UserApp.objects.create(
             name="JWTUser",
             email="jwt@example.com",
             phone="0000000000",
@@ -405,7 +405,7 @@ class UserViewsTest(TestCase):
         self.client = APIClient()
         self.email = "user@test.com"
         self.password = "Password123!"
-        self.user = User.objects.create(
+        self.user = UserApp.objects.create(
             name="UserTest",
             email=self.email,
             phone="9999999999",
