@@ -46,6 +46,16 @@ CORS_ALLOW_HEADERS = [
     'x-requested-with',
 ]
 
+# CORS: permitir origen del frontend en desarrollo
+# En producción restringe esto solo a los orígenes necesarios o usa CORS_ALLOWED_ORIGIN_REGEXES
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+]
+
+# Si tu frontend necesita enviar cookies/credenciales (Authorization header o session cookie)
+CORS_ALLOW_CREDENTIALS = True
+
 # Application definition
 INSTALLED_APPS = [
     'django.contrib.admin',
