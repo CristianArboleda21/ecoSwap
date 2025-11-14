@@ -1,1 +1,9 @@
-*/migrations/
+# Ignore all Django migrations (folders and files) but keep the __init__.py
+# so the migrations package remains importable if needed.
+**/migrations/
+!**/migrations/__init__.py
+
+# Optional: ignore python cache and envs (uncomment or add as needed)
+# __pycache__/
+# *.py[cod]
+# .venv/
