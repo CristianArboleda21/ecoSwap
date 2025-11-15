@@ -15,6 +15,7 @@ passlib = "*"
 pytest = "*"
 pytest-django = "*"
 cryptography = "*"
+Pillow = "*"
 
 [dev-packages]
 
