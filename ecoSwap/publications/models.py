@@ -33,5 +33,5 @@ class PublicationImage(models.Model):
         related_name="imagenes",
         on_delete=models.CASCADE
     )
-    imagen = models.ImageField(upload_to='publications/')
+    imagen = models.TextField()  # Almacena la imagen en base64
     fecha = models.DateTimeField(auto_now_add=True)
