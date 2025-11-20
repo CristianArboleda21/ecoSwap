@@ -27,4 +27,8 @@ urlpatterns = [
     path('states/create', views.create_state, name='create_state'),
     path('states/list', views.list_states, name='list_states'),
     path('states/<int:estado_id>/', views.get_state, name='get_state'),
+
+    # Condiciones
+    path('conditions/list', views.list_condition, name='list_condition'),
+    path('conditions/<int:estado_id>/', views.get_condition, name='get_condition'),
 ]

@@ -3,7 +3,7 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
 from ..services.publications_service import PublicationsService
-from ..serializers import PublicationsSerializer, CategorySerializer, StateSerializer
+from ..serializers import PublicationsSerializer, CategorySerializer, StateSerializer, ConditionSerializer
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
@@ -15,6 +15,7 @@ def create_publication(request):
     categoria_id = request.data.get('categoria_id')
     estado_id = request.data.get('estado_id')
     ubicacion = request.data.get('ubicacion')
+    condicion_id = request.data.get('condicion_id')
     
     # Manejar imágenes desde FILES (multipart/form-data)
     imagenes = request.FILES.getlist('imagenes', [])
@@ -26,7 +27,7 @@ def create_publication(request):
         )
 
     success, msg, pub_id = PublicationsService.create_publication(
-        user.id, categoria_id, estado_id, titulo, descripcion, ubicacion, imagenes
+        user.id, categoria_id, estado_id, titulo, descripcion, ubicacion, condicion_id, imagenes
     )
 
     if success:
@@ -207,3 +208,21 @@ def get_state(request, estado_id):
     else:
         return Response({"error": estado, "status": 404}, status=status.HTTP_404_NOT_FOUND)
 
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def list_condition(request):
+    success, condiciones = PublicationsService.list_condition()
+    serializer = ConditionSerializer(condiciones, many=True)
+    return Response({"states": serializer.data, "status": 200}, status=status.HTTP_200_OK)
+
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def get_condition(request, condition_id):
+    success, condicion = PublicationsService.get_state(condition_id)
+
+    if success:
+        serializer = ConditionSerializer(condicion)
+        return Response({"state": serializer.data, "status": 200}, status=status.HTTP_200_OK)
+    else:
+        return Response({"error": condicion, "status": 404}, status=status.HTTP_404_NOT_FOUND)

@@ -2,7 +2,7 @@ import base64
 from django.core.files.base import ContentFile
 import uuid
 from django.utils import timezone
-from publications.models import Publications, UserApp, Category, State, PublicationImage
+from publications.models import Publications, UserApp, Category, State, PublicationImage, Condition
 from django.utils import timezone
 from ..models import Publications, FavoritePublication
 
@@ -11,7 +11,7 @@ class PublicationsService:
 
 
     @classmethod
-    def create_publication(cls, user_id, categoria_id, estado_id, titulo, descripcion, ubicacion, imagenes):
+    def create_publication(cls, user_id, categoria_id, estado_id, condicion_id, titulo, descripcion, ubicacion, imagenes):
         # Validar usuario
         try:
             user = UserApp.objects.get(id=user_id)
@@ -29,12 +29,19 @@ class PublicationsService:
             estado = State.objects.get(id=estado_id)
         except State.DoesNotExist:
             return False, "El estado no existe."
+        
+         # Validar condicion
+        try:
+            condicion = Condition.objects.get(id=condicion_id)
+        except Condition.DoesNotExist:
+            return False, "El estado no existe."
 
         # Crear publicación
         publicacion = Publications.objects.create(
             user=user,
             categoria=categoria,
             estado=estado,
+            condicion=condicion,
             titulo=titulo,
             descripcion=descripcion,
             ubicacion=ubicacion,
@@ -210,4 +217,17 @@ class PublicationsService:
 
         estado = State.objects.create(nombre=nombre)
         return True, "Estado creado correctamente.", estado.id
+    
+    @classmethod
+    def list_condition(cls):
+        condiciones = Condition.objects.all()
+        return True, condiciones
+
+    @classmethod
+    def get_conditios(cls, condition_id):
+        try:
+            condicion = Condition.objects.get(id=condition_id)
+            return True, condicion
+        except State.DoesNotExist:
+            return False, "El estado no existe."
 

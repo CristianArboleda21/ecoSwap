@@ -1,6 +1,9 @@
 from django.db import models
 from users.models import UserApp
 
+class Condition(models.Model):
+    nombre = models.CharField(max_length=100, unique=True)
+
 class Category(models.Model):
     nombre = models.CharField(max_length=100, unique=True)
 
@@ -11,9 +14,9 @@ class Publications(models.Model):
     id_publicacion = models.AutoField(primary_key=True)
     
     user = models.ForeignKey(UserApp, on_delete=models.CASCADE)
-    categoria = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True)
-    estado = models.ForeignKey(State, on_delete=models.SET_NULL, null=True)
-
+    categoria = models.ForeignKey(Category, on_delete=models.CASCADE)
+    estado = models.ForeignKey(State, on_delete=models.CASCADE)
+    condition = models.ForeignKey(Condition, on_delete=models.CASCADE)
     titulo = models.CharField(max_length=200)
     descripcion = models.TextField()
     ubicacion = models.CharField(max_length=200)

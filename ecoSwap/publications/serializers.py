@@ -1,5 +1,11 @@
 from rest_framework import serializers
-from .models import Publications, FavoritePublication, Category, State, PublicationImage
+from .models import Publications, FavoritePublication, Category, State, PublicationImage, Condition
+
+
+class ConditionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Condition
+        fields = ['id', 'nombre']
 
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:
