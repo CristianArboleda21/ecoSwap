@@ -158,4 +158,48 @@ class PublicationsService:
         favoritos = FavoritePublication.objects.filter(user_id=user_id)
         publicaciones = [f.publicacion for f in favoritos]
         return True, publicaciones
+    
+    @classmethod
+    def create_category(cls, nombre):
+        # Validar si existe
+        if Category.objects.filter(nombre=nombre).exists():
+            return False, "La categoría ya existe."
+
+        categoria = Category.objects.create(nombre=nombre)
+        return True, "Categoría creada correctamente.", categoria.id
+    
+    @classmethod
+    def list_categories(cls):
+        categorias = Category.objects.all()
+        return True, categorias
+
+    @classmethod
+    def get_category(cls, categoria_id):
+        try:
+            categoria = Category.objects.get(id=categoria_id)
+            return True, categoria
+        except Category.DoesNotExist:
+            return False, "La categoría no existe."
+        
+    @classmethod
+    def list_states(cls):
+        estados = State.objects.all()
+        return True, estados
+
+    @classmethod
+    def get_state(cls, estado_id):
+        try:
+            estado = State.objects.get(id=estado_id)
+            return True, estado
+        except State.DoesNotExist:
+            return False, "El estado no existe."
+        
+    @classmethod
+    def create_state(cls, nombre):
+        # Validar si existe
+        if State.objects.filter(nombre=nombre).exists():
+            return False, "El estado ya existe."
+
+        estado = State.objects.create(nombre=nombre)
+        return True, "Estado creado correctamente.", estado.id
 

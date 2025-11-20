@@ -123,3 +123,84 @@ def list_user_publications(request):
     success, publicaciones = PublicationsService.list_user_publications(user.id)
     serializer = PublicationsSerializer(publicaciones, many=True)
     return Response({"publications": serializer.data, "status": 200}, status=status.HTTP_200_OK)
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def create_category(request):
+    nombre = request.data.get("nombre")
+
+    if not nombre:
+        return Response(
+            {"error": "El campo 'nombre' es requerido.", "status": 400},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+    success, message, *data = PublicationsService.create_category(nombre)
+
+    if success:
+        categoria_id = data[0] if data else None
+        return Response({"message": message, "id": categoria_id, "status": 201},
+                        status=status.HTTP_201_CREATED)
+    else:
+        return Response({"error": message, "status": 400}, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def list_categories(request):
+    success, categorias = PublicationsService.list_categories()
+    serializer = PublicationsService(categorias, many=True)
+    return Response({"categories": serializer.data, "status": 200}, status=status.HTTP_200_OK)
+
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def get_category(request, categoria_id):
+    success, categoria = PublicationsService.get_category(categoria_id)
+
+    if success:
+        serializer = PublicationsService(categoria)
+        return Response({"category": serializer.data, "status": 200}, status=status.HTTP_200_OK)
+    else:
+        return Response({"error": categoria, "status": 404}, status=status.HTTP_404_NOT_FOUND)
+    
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def create_state(request):
+    nombre = request.data.get("nombre")
+
+    if not nombre:
+        return Response(
+            {"error": "El campo 'nombre' es requerido.", "status": 400},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+    success, message, *data = PublicationsService.create_state(nombre)
+
+    if success:
+        estado_id = data[0] if data else None
+        return Response({"message": message, "id": estado_id, "status": 201},
+                        status=status.HTTP_201_CREATED)
+    else:
+        return Response({"error": message, "status": 400}, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def list_states(request):
+    success, estados = PublicationsService.list_states()
+    serializer = PublicationsService(estados, many=True)
+    return Response({"states": serializer.data, "status": 200}, status=status.HTTP_200_OK)
+
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def get_state(request, estado_id):
+    success, estado = PublicationsService.get_state(estado_id)
+
+    if success:
+        serializer = PublicationsService(estado)
+        return Response({"state": serializer.data, "status": 200}, status=status.HTTP_200_OK)
+    else:
+        return Response({"error": estado, "status": 404}, status=status.HTTP_404_NOT_FOUND)
+

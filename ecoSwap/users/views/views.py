@@ -5,6 +5,8 @@ from ..services.auth_service import AuthService
 from ..serializers import UserAppSerializer
 from rest_framework import status 
 from ..models import UserApp
+from publications.models import Publications
+from publications.serializers import PublicationsSerializer
 
 
 @api_view(['POST']) 
@@ -180,3 +182,32 @@ def logout(request):
       
     else:  
         return Response({"error": msg, "status" : 400},  status=status.HTTP_400_BAD_REQUEST)
+    
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_user_profile_by_email(request, email):
+
+    try:
+        user = UserApp.objects.get(email=email)
+        publications =  Publications.objects.filter(user=user.id)
+        
+
+        serializer = UserAppSerializer(user)
+        serializerPublication = PublicationsSerializer(publications)
+        data = {
+            'user': serializer.data,
+            'publication': serializerPublication.data
+        }
+        return Response(data, status=status.HTTP_200_OK)
+
+    except UserApp.DoesNotExist:
+        return Response(
+            {"error": "No existe un usuario con ese email.", "status": 404},
+            status=status.HTTP_404_NOT_FOUND
+        )
+
+    except Exception as e:
+        return Response(
+            {"error": f"Error al obtener perfil: {str(e)}", "status": 500},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
