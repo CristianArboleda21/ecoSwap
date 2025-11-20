@@ -2,7 +2,7 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny, IsAuthenticated 
 from rest_framework.response import Response 
 from ..services.auth_service import AuthService
-from ..serializers import UserAppSerializer
+from ..serializers import UserAppSerializer, ImagesUsersSerializer
 from rest_framework import status 
 from ..models import UserApp, ImagesUsers
 from publications.models import Publications, Category, State
@@ -77,8 +77,14 @@ def get_user_profile(request):
     user: UserApp = request.user  
     
     try:
+        image = ImagesUsers.objects.filter(user=user)
+        serializer_image = ImagesUsersSerializer(image, many=True)
         serializer = UserAppSerializer(user)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        data = {
+            'user': serializer.data,
+            'image': serializer_image.data
+        }
+        return Response(data, status=status.HTTP_200_OK)
     
     except Exception as e:
         return Response(

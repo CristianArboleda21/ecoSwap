@@ -9,4 +9,4 @@ class UserAppSerializer(serializers.ModelSerializer):
 class ImagesUsersSerializer(serializers.ModelSerializer):
     class Meta:
         model = ImagesUsers
-        fields = '__all__'
+        fields = ['image', 'uploaded_at']

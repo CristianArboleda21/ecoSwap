@@ -58,5 +58,5 @@ class UserApp(models.Model):
 
 class ImagesUsers(models.Model):
     user: models.ForeignKey = models.ForeignKey(UserApp, on_delete=models.CASCADE)
-    image: models.ImageField = models.ImageField(upload_to='user_images/')
+    image: models.TextField = models.TextField()
     uploaded_at: models.DateTimeField = models.DateTimeField(auto_now_add=True)

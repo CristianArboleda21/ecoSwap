@@ -6,7 +6,7 @@ from .jwt_service import JWTService
 from ..models import UserApp, ImagesUsers
 from django.utils import timezone
 
-import re, random
+import re, random, base64
 
 class AuthService: 
     """Servicio de autenticación con JWT"""
@@ -78,8 +78,51 @@ class AuthService:
             if address:
                 user.address = address
             if image:
-                imagen = ImagesUsers.objects.create(user=user, image=image)
-                imagen.save()
+                imagen_delete = ImagesUsers.objects.filter(user=user)
+                if imagen_delete.exists():
+                    imagen_delete.delete()
+
+                MAX_IMAGE_SIZE = 10 * 1024 * 1024
+                
+                try:
+                    # Si es un archivo (desde FormData), convertir a base64
+                    if hasattr(image, 'read'):
+                        img_data = image.read()
+                        
+                        # Validar tamaño
+                        if len(img_data) > MAX_IMAGE_SIZE:
+                            return False, f"La imagen es demasiado grande. Tamaño máximo: 10MB"
+                        
+                        img_base64 = base64.b64encode(img_data).decode('utf-8')
+                        content_type = image.content_type if hasattr(image, 'content_type') else 'image/jpeg'
+                        img_base64_string = f"data:{content_type};base64,{img_base64}"
+                        
+                        imagen = ImagesUsers.objects.create(
+                            user=user,
+                            image=img_base64_string
+                        )
+                        imagen.save()
+
+                    # Si ya es una cadena base64
+                    elif isinstance(image, str):
+                        # Validar que contenga base64
+                        if 'base64' not in image:
+                            return False, "Formato de imagen inválido"
+                        
+                        # Validar tamaño aproximado de la cadena
+                        if len(image) > MAX_IMAGE_SIZE * 1.5:  # Base64 aumenta ~33% el tamaño
+                            return False, f"La imagen es demasiado grande. Tamaño máximo: 10MB"
+                        
+                        imagen = ImagesUsers.objects.create(
+                            user=user,
+                            image=image
+                        )
+                        imagen.save()
+
+                except Exception as img_error:
+                    # Log del error pero continuar con otras imágenes
+                    print(f"Error procesando imagen: {str(img_error)}")
+                    return False, f"Error al procesar la imagen: {str(img_error)}"
             
             user.save()
             return True, "Perfil actualizado exitosamente"

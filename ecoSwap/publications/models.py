@@ -14,7 +14,7 @@ class Publications(models.Model):
     user = models.ForeignKey(UserApp, on_delete=models.CASCADE)
     categoria = models.ForeignKey(Category, on_delete=models.CASCADE)
     estado = models.ForeignKey(State, on_delete=models.CASCADE)
-    condition = models.ForeignKey(Condition, on_delete=models.CASCADE)
+    condition = models.ForeignKey(Condition, blank=True, null=True, on_delete=models.CASCADE)
     titulo = models.CharField(max_length=200)
     descripcion = models.TextField()
     ubicacion = models.CharField(max_length=200)

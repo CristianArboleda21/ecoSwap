@@ -30,5 +30,5 @@ urlpatterns = [
 
     # Condiciones
     path('conditions/list', views.list_condition, name='list_condition'),
-    path('conditions/<int:estado_id>/', views.get_condition, name='get_condition'),
+    path('conditions/<int:condition_id>/', views.get_condition, name='get_condition'),
 ]
