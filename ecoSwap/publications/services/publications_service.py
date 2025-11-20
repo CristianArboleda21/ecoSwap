@@ -47,7 +47,7 @@ class PublicationsService:
                     imagen=img
                 )
 
-        return True, "Publicación creada correctamente.", publicacion.id_publicacion
+        return True, "Publicación creada correctamente.", publicacion.id
 
 
     @classmethod
@@ -62,7 +62,7 @@ class PublicationsService:
         nuevas_imagenes=None
     ):
         try:
-            publicacion = Publications.objects.get(id_publicacion=pub_id)
+            publicacion = Publications.objects.get(id=pub_id)
         except Publications.DoesNotExist:
             return False, "La publicación no existe."
 
@@ -108,7 +108,7 @@ class PublicationsService:
     @classmethod
     def get_publication(cls, pub_id):
         try:
-            publicacion = Publications.objects.get(id_publicacion=pub_id)
+            publicacion = Publications.objects.get(id=pub_id)
             return True, publicacion
         except Publications.DoesNotExist:
             return False, "La publicación no existe."
@@ -126,7 +126,7 @@ class PublicationsService:
             return False, "El usuario no existe."
 
         try:
-            publication = Publications.objects.get(id_publicacion=pub_id)
+            publication = Publications.objects.get(id=pub_id)
         except Publications.DoesNotExist:
             return False, "La publicación no existe."
 

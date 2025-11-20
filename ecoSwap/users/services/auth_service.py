@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 from comunications.services.email_service import EmailService 
 from passlib.hash import pbkdf2_sha256
 from .jwt_service import JWTService 
-from ..models import UserApp
+from ..models import UserApp, ImagesUsers
 from django.utils import timezone
 
 import re, random
@@ -64,6 +64,28 @@ class AuthService:
         
         except Exception as e:  
             return None, f"Error al crear usuario: {str(e)}"
+        
+    @classmethod
+    def update_user_profile(cls, name, username, phone, address, image, user: UserApp):
+        """Actualiza el perfil del usuario"""
+        try:
+            if name:
+                user.name = name
+            if username:
+                user.username = username
+            if phone:
+                user.phone = phone
+            if address:
+                user.address = address
+            if image:
+                imagen = ImagesUsers.objects.create(user=user, image=image)
+                imagen.save()
+            
+            user.save()
+            return True, "Perfil actualizado exitosamente"
+        
+        except Exception as e:
+            return False, f"Error al actualizar perfil: {str(e)}"
         
     @classmethod
     def login(cls, email: str, password: str) -> Tuple[Optional[Dict], str]:  

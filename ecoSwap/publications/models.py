@@ -7,9 +7,7 @@ class Category(models.Model):
 class State(models.Model):
     nombre = models.CharField(max_length=50, unique=True)
 
-class Publications(models.Model):
-    id_publicacion = models.AutoField(primary_key=True)
-    
+class Publications(models.Model):    
     user = models.ForeignKey(UserApp, on_delete=models.CASCADE)
     categoria = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True)
     estado = models.ForeignKey(State, on_delete=models.SET_NULL, null=True)

@@ -29,7 +29,7 @@ class PublicationsSerializer(serializers.ModelSerializer):
     class Meta:
         model = Publications
         fields = [
-            'id_publicacion',
+            'id',
             'user',
             'categoria',
             'estado',
@@ -39,4 +39,4 @@ class PublicationsSerializer(serializers.ModelSerializer):
             'fecha_publicacion',
             'imagenes',
         ]
-        read_only_fields = ['id_publicacion', 'fecha_publicacion']
+        read_only_fields = ['id', 'fecha_publicacion']
