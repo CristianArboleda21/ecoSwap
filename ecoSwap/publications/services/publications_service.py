@@ -168,6 +168,11 @@ class PublicationsService:
         return True, publicaciones
     
     @classmethod
+    def list_user_publications(cls, user_id):
+        publicaciones = Publications.objects.filter(user_id=user_id)
+        return True, publicaciones
+    
+    @classmethod
     def create_category(cls, nombre):
         # Validar si existe
         if Category.objects.filter(nombre=nombre).exists():
