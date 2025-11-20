@@ -15,7 +15,9 @@ def create_publication(request):
     categoria_id = request.data.get('categoria_id')
     estado_id = request.data.get('estado_id')
     ubicacion = request.data.get('ubicacion')
-    imagenes = request.data.getlist('imagenes', []) 
+    
+    # Manejar imágenes desde FILES (multipart/form-data)
+    imagenes = request.FILES.getlist('imagenes', [])
 
     if not titulo or not descripcion or not categoria_id or not estado_id:
         return Response(
