@@ -27,7 +27,7 @@
    ('accessories'),
    ('other');
 
-   INSERT INTO publication_state (id) VALUES
+   INSERT INTO publications_state (nombre) VALUES
    ('active'),
    ('inactive'),
    ('exchanged');
