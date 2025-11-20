@@ -8,72 +8,84 @@ from ..serializers import PublicationsSerializer, CategorySerializer, StateSeria
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def create_publication(request):
-    user = request.user
+    try:
+        user = request.user
 
-    titulo = request.data.get('titulo')
-    descripcion = request.data.get('descripcion')
-    categoria_id = request.data.get('categoria_id')
-    estado_id = request.data.get('estado_id')
-    ubicacion = request.data.get('ubicacion')
-    condicion_id = request.data.get('condicion_id')
-    
-    # Manejar imágenes desde FILES (multipart/form-data) o desde data (JSON base64)
-    imagenes = request.FILES.getlist('imagenes', [])
-    
-    # Si no hay imágenes en FILES, buscar en data (puede ser un array JSON)
-    if not imagenes:
-        imagenes_data = request.data.get('imagenes', [])
-        if imagenes_data:
-            imagenes = imagenes_data if isinstance(imagenes_data, list) else [imagenes_data]
+        titulo = request.data.get('titulo')
+        descripcion = request.data.get('descripcion')
+        categoria_id = request.data.get('categoria_id')
+        estado_id = request.data.get('estado_id')
+        ubicacion = request.data.get('ubicacion')
+        condicion_id = request.data.get('condicion_id')
+        
+        # Manejar imágenes desde FILES (multipart/form-data) o desde data (JSON base64)
+        imagenes = request.FILES.getlist('imagenes', [])
+        
+        # Si no hay imágenes en FILES, buscar en data (puede ser un array JSON)
+        if not imagenes:
+            imagenes_data = request.data.get('imagenes', [])
+            if imagenes_data:
+                imagenes = imagenes_data if isinstance(imagenes_data, list) else [imagenes_data]
 
-    if not titulo or not descripcion or not categoria_id or not estado_id:
-        return Response(
-            {"error": "Todos los campos requeridos: titulo, descripcion, categoria_id, estado_id", "status": 400},
-            status=status.HTTP_400_BAD_REQUEST
+        if not titulo or not descripcion or not categoria_id or not estado_id:
+            return Response(
+                {"error": "Todos los campos requeridos: titulo, descripcion, categoria_id, estado_id", "status": 400},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        success, msg, pub_id = PublicationsService.create_publication(
+            user.id, categoria_id, estado_id, titulo, descripcion, ubicacion, condicion_id, imagenes
         )
 
-    success, msg, pub_id = PublicationsService.create_publication(
-        user.id, categoria_id, estado_id, titulo, descripcion, ubicacion, condicion_id, imagenes
-    )
-
-    if success:
-        _, publication = PublicationsService.get_publication(pub_id)
-        serializer = PublicationsSerializer(publication)
-        return Response({"message": msg, "publication": serializer.data, "status": 201},
-                        status=status.HTTP_201_CREATED)
-    else:
-        return Response({"error": msg, "status": 400}, status=status.HTTP_400_BAD_REQUEST)
+        if success:
+            _, publication = PublicationsService.get_publication(pub_id)
+            serializer = PublicationsSerializer(publication)
+            return Response({"message": msg, "publication": serializer.data, "status": 201},
+                            status=status.HTTP_201_CREATED)
+        else:
+            return Response({"error": msg, "status": 400}, status=status.HTTP_400_BAD_REQUEST)
+    except Exception as e:
+        return Response(
+            {"error": f"Error interno del servidor: {str(e)}", "status": 500},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
 
 
 @api_view(['PUT'])
 @permission_classes([IsAuthenticated])
 def edit_publication(request, pub_id):
-    user = request.user
+    try:
+        user = request.user
 
-    titulo = request.data.get('titulo')
-    descripcion = request.data.get('descripcion')
-    categoria_id = request.data.get('categoria_id')
-    estado_id = request.data.get('estado_id')
-    ubicacion = request.data.get('ubicacion')
-    condition_id = request.data.get('condition_id')
-    
-    # Manejar imágenes desde FILES (multipart/form-data) o desde data (JSON base64)
-    nuevas_imagenes = request.FILES.getlist('imagenes', [])
-    
-    # Si no hay imágenes en FILES, buscar en data (puede ser un array JSON)
-    if not nuevas_imagenes:
-        imagenes_data = request.data.get('imagenes', [])
-        if imagenes_data:
-            nuevas_imagenes = imagenes_data if isinstance(imagenes_data, list) else [imagenes_data]
+        titulo = request.data.get('titulo')
+        descripcion = request.data.get('descripcion')
+        categoria_id = request.data.get('categoria_id')
+        estado_id = request.data.get('estado_id')
+        ubicacion = request.data.get('ubicacion')
+        condicion_id = request.data.get('condicion_id') or request.data.get('condition_id')
+        
+        # Manejar imágenes desde FILES (multipart/form-data) o desde data (JSON base64)
+        nuevas_imagenes = request.FILES.getlist('imagenes', [])
+        
+        # Si no hay imágenes en FILES, buscar en data (puede ser un array JSON)
+        if not nuevas_imagenes:
+            imagenes_data = request.data.get('imagenes')
+            if imagenes_data is not None:  # Permitir lista vacía para eliminar todas las imágenes
+                nuevas_imagenes = imagenes_data if isinstance(imagenes_data, list) else [imagenes_data]
 
-    success, msg = PublicationsService.update_publication(
-        pub_id, categoria_id, estado_id, titulo, descripcion, ubicacion, nuevas_imagenes, condition_id
-    )
+        success, msg = PublicationsService.update_publication(
+            pub_id, categoria_id, estado_id, titulo, descripcion, ubicacion, condicion_id, nuevas_imagenes
+        )
 
-    if success:
-        return Response({"message": msg, "status": 200}, status=status.HTTP_200_OK)
-    else:
-        return Response({"error": msg, "status": 400}, status=status.HTTP_400_BAD_REQUEST)
+        if success:
+            return Response({"message": msg, "status": 200}, status=status.HTTP_200_OK)
+        else:
+            return Response({"error": msg, "status": 400}, status=status.HTTP_400_BAD_REQUEST)
+    except Exception as e:
+        return Response(
+            {"error": f"Error interno del servidor: {str(e)}", "status": 500},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
 
 
 @api_view(['GET'])

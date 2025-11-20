@@ -11,37 +11,39 @@ class PublicationsService:
 
 
     @classmethod
-    def create_publication(cls, user_id, categoria_id, estado_id, condicion_id, titulo, descripcion, ubicacion, imagenes):
+    def create_publication(cls, user_id, categoria_id, estado_id, titulo, descripcion, ubicacion, condicion_id, imagenes):
         # Validar usuario
         try:
             user = UserApp.objects.get(id=user_id)
         except UserApp.DoesNotExist:
-            return False, "El usuario no existe."
+            return False, "El usuario no existe.", None
 
         # Validar categoría
         try:
             categoria = Category.objects.get(id=categoria_id)
         except Category.DoesNotExist:
-            return False, "La categoría no existe."
+            return False, "La categoría no existe.", None
 
         # Validar estado
         try:
             estado = State.objects.get(id=estado_id)
         except State.DoesNotExist:
-            return False, "El estado no existe."
+            return False, "El estado no existe.", None
         
-         # Validar condicion
-        try:
-            condicion = Condition.objects.get(id=condicion_id)
-        except Condition.DoesNotExist:
-            return False, "El estado no existe."
+        # Validar condicion (puede ser None)
+        condition = None
+        if condicion_id:
+            try:
+                condition = Condition.objects.get(id=condicion_id)
+            except Condition.DoesNotExist:
+                return False, "La condición no existe.", None
 
         # Crear publicación
         publicacion = Publications.objects.create(
             user=user,
             categoria=categoria,
             estado=estado,
-            condicion=condicion,
+            condition=condition,
             titulo=titulo,
             descripcion=descripcion,
             ubicacion=ubicacion,
@@ -50,24 +52,52 @@ class PublicationsService:
 
         # Guardar imágenes si existen
         if imagenes:
+            # Validar que sea una lista
+            if not isinstance(imagenes, list):
+                imagenes = [imagenes]
+            
+            # Límite de tamaño por imagen (10MB en base64)
+            MAX_IMAGE_SIZE = 10 * 1024 * 1024  # 10MB
+            
             for img in imagenes:
-                # Si es un archivo (desde FormData), convertir a base64
-                if hasattr(img, 'read'):
-                    img_data = img.read()
-                    img_base64 = base64.b64encode(img_data).decode('utf-8')
-                    # Determinar el tipo MIME
-                    content_type = img.content_type if hasattr(img, 'content_type') else 'image/jpeg'
-                    img_base64_string = f"data:{content_type};base64,{img_base64}"
-                    PublicationImage.objects.create(
-                        publicacion=publicacion,
-                        imagen=img_base64_string
-                    )
-                # Si ya es una cadena base64
-                elif isinstance(img, str) and 'base64' in img:
-                    PublicationImage.objects.create(
-                        publicacion=publicacion,
-                        imagen=img
-                    )
+                try:
+                    # Si es un archivo (desde FormData), convertir a base64
+                    if hasattr(img, 'read'):
+                        img_data = img.read()
+                        
+                        # Validar tamaño
+                        if len(img_data) > MAX_IMAGE_SIZE:
+                            publicacion.delete()  # Eliminar publicación si hay error
+                            return False, f"La imagen es demasiado grande. Tamaño máximo: 10MB", None
+                        
+                        img_base64 = base64.b64encode(img_data).decode('utf-8')
+                        # Determinar el tipo MIME
+                        content_type = img.content_type if hasattr(img, 'content_type') else 'image/jpeg'
+                        img_base64_string = f"data:{content_type};base64,{img_base64}"
+                        
+                        PublicationImage.objects.create(
+                            publicacion=publicacion,
+                            imagen=img_base64_string
+                        )
+                    # Si ya es una cadena base64
+                    elif isinstance(img, str):
+                        # Validar que contenga base64
+                        if 'base64' not in img:
+                            continue  # Saltar imágenes inválidas
+                        
+                        # Validar tamaño aproximado de la cadena
+                        if len(img) > MAX_IMAGE_SIZE * 1.5:  # Base64 aumenta ~33% el tamaño
+                            publicacion.delete()  # Eliminar publicación si hay error
+                            return False, f"La imagen es demasiado grande. Tamaño máximo: 10MB", None
+                        
+                        PublicationImage.objects.create(
+                            publicacion=publicacion,
+                            imagen=img
+                        )
+                except Exception as img_error:
+                    # Log del error
+                    print(f"Error procesando imagen: {str(img_error)}")
+                    continue
 
         return True, "Publicación creada correctamente.", publicacion.id_publicacion
 
@@ -103,9 +133,9 @@ class PublicationsService:
         
         if condicion_id:
             try:
-                publicacion.condicion = Condition.objects.get(id=condicion_id)
-            except State.DoesNotExist:
-                return False, "La condicion no existe."
+                publicacion.condition = Condition.objects.get(id=condicion_id)
+            except Condition.DoesNotExist:
+                return False, "La condición no existe."
 
         if titulo:
             publicacion.titulo = titulo
@@ -120,26 +150,56 @@ class PublicationsService:
 
         # Reemplazar imágenes existentes
         if nuevas_imagenes is not None:
-            # Eliminar imágenes actuales
-            PublicationImage.objects.filter(publicacion=publicacion).delete()
+            try:
+                # Eliminar imágenes actuales
+                PublicationImage.objects.filter(publicacion=publicacion).delete()
 
-            for img in nuevas_imagenes:
-                # Si es un archivo (desde FormData), convertir a base64
-                if hasattr(img, 'read'):
-                    img_data = img.read()
-                    img_base64 = base64.b64encode(img_data).decode('utf-8')
-                    content_type = img.content_type if hasattr(img, 'content_type') else 'image/jpeg'
-                    img_base64_string = f"data:{content_type};base64,{img_base64}"
-                    PublicationImage.objects.create(
-                        publicacion=publicacion,
-                        imagen=img_base64_string
-                    )
-                # Si ya es una cadena base64
-                elif isinstance(img, str) and 'base64' in img:
-                    PublicationImage.objects.create(
-                        publicacion=publicacion,
-                        imagen=img
-                    )
+                # Validar que sea una lista
+                if not isinstance(nuevas_imagenes, list):
+                    nuevas_imagenes = [nuevas_imagenes]
+
+                # Límite de tamaño por imagen (10MB en base64)
+                MAX_IMAGE_SIZE = 10 * 1024 * 1024  # 10MB
+
+                for img in nuevas_imagenes:
+                    try:
+                        # Si es un archivo (desde FormData), convertir a base64
+                        if hasattr(img, 'read'):
+                            img_data = img.read()
+                            
+                            # Validar tamaño
+                            if len(img_data) > MAX_IMAGE_SIZE:
+                                return False, f"La imagen es demasiado grande. Tamaño máximo: 10MB"
+                            
+                            img_base64 = base64.b64encode(img_data).decode('utf-8')
+                            content_type = img.content_type if hasattr(img, 'content_type') else 'image/jpeg'
+                            img_base64_string = f"data:{content_type};base64,{img_base64}"
+                            
+                            PublicationImage.objects.create(
+                                publicacion=publicacion,
+                                imagen=img_base64_string
+                            )
+                        # Si ya es una cadena base64
+                        elif isinstance(img, str):
+                            # Validar que contenga base64
+                            if 'base64' not in img:
+                                continue  # Saltar imágenes inválidas
+                            
+                            # Validar tamaño aproximado de la cadena
+                            if len(img) > MAX_IMAGE_SIZE * 1.5:  # Base64 aumenta ~33% el tamaño
+                                return False, f"La imagen es demasiado grande. Tamaño máximo: 10MB"
+                            
+                            PublicationImage.objects.create(
+                                publicacion=publicacion,
+                                imagen=img
+                            )
+                    except Exception as img_error:
+                        # Log del error pero continuar con otras imágenes
+                        print(f"Error procesando imagen: {str(img_error)}")
+                        continue
+                        
+            except Exception as e:
+                return False, f"Error al procesar las imágenes: {str(e)}"
 
         return True, "Publicación actualizada correctamente."
     

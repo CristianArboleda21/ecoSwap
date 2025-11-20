@@ -39,7 +39,7 @@ class PublicationsSerializer(serializers.ModelSerializer):
             'user',
             'categoria',
             'estado',
-            'condicion',
+            'condition',
             'titulo',
             'descripcion',
             'ubicacion',
