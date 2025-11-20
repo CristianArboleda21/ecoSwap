@@ -82,6 +82,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'ecoSwap.middleware.RequestSizeMiddleware',
 ]
 
 ROOT_URLCONF = 'ecoSwap.urls'
@@ -158,6 +159,11 @@ REST_FRAMEWORK = {
         'rest_framework.permissions.IsAuthenticated', 
     ], 
 }
+
+# Configuración de tamaño máximo para cargas de archivos
+# 15 MB en bytes (para permitir múltiples imágenes)
+DATA_UPLOAD_MAX_MEMORY_SIZE = 15 * 1024 * 1024  # 15 MB
+FILE_UPLOAD_MAX_MEMORY_SIZE = 15 * 1024 * 1024  # 15 MB
 
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
