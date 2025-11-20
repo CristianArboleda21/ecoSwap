@@ -55,6 +55,7 @@ def edit_publication(request, pub_id):
     categoria_id = request.data.get('categoria_id')
     estado_id = request.data.get('estado_id')
     ubicacion = request.data.get('ubicacion')
+    condition_id = request.data.get('condition_id')
     
     # Manejar imágenes desde FILES (multipart/form-data) o desde data (JSON base64)
     nuevas_imagenes = request.FILES.getlist('imagenes', [])
@@ -66,7 +67,7 @@ def edit_publication(request, pub_id):
             nuevas_imagenes = imagenes_data if isinstance(imagenes_data, list) else [imagenes_data]
 
     success, msg = PublicationsService.update_publication(
-        pub_id, categoria_id, estado_id, titulo, descripcion, ubicacion, nuevas_imagenes
+        pub_id, categoria_id, estado_id, titulo, descripcion, ubicacion, nuevas_imagenes, condition_id
     )
 
     if success:

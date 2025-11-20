@@ -80,7 +80,8 @@ class PublicationsService:
         estado_id=None, 
         titulo=None, 
         descripcion=None, 
-        ubicacion=None, 
+        ubicacion=None,
+        condicion_id=None, 
         nuevas_imagenes=None
     ):
         try:
@@ -99,6 +100,12 @@ class PublicationsService:
                 publicacion.estado = State.objects.get(id=estado_id)
             except State.DoesNotExist:
                 return False, "El estado no existe."
+        
+        if condicion_id:
+            try:
+                publicacion.condicion = Condition.objects.get(id=condicion_id)
+            except State.DoesNotExist:
+                return False, "La condicion no existe."
 
         if titulo:
             publicacion.titulo = titulo
@@ -111,8 +118,11 @@ class PublicationsService:
 
         publicacion.save()
 
-        # Agregar imágenes nuevas
-        if nuevas_imagenes:
+        # Reemplazar imágenes existentes
+        if nuevas_imagenes is not None:
+            # Eliminar imágenes actuales
+            PublicationImage.objects.filter(publicacion=publicacion).delete()
+
             for img in nuevas_imagenes:
                 # Si es un archivo (desde FormData), convertir a base64
                 if hasattr(img, 'read'):
@@ -132,7 +142,7 @@ class PublicationsService:
                     )
 
         return True, "Publicación actualizada correctamente."
-
+    
     @classmethod
     def list_publications(cls, estado_id=None):
         publicaciones = Publications.objects.all()
