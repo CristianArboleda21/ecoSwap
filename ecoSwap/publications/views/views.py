@@ -16,8 +16,14 @@ def create_publication(request):
     estado_id = request.data.get('estado_id')
     ubicacion = request.data.get('ubicacion')
     
-    # Manejar imágenes desde FILES (multipart/form-data)
+    # Manejar imágenes desde FILES (multipart/form-data) o desde data (JSON base64)
     imagenes = request.FILES.getlist('imagenes', [])
+    
+    # Si no hay imágenes en FILES, buscar en data (puede ser un array JSON)
+    if not imagenes:
+        imagenes_data = request.data.get('imagenes', [])
+        if imagenes_data:
+            imagenes = imagenes_data if isinstance(imagenes_data, list) else [imagenes_data]
 
     if not titulo or not descripcion or not categoria_id or not estado_id:
         return Response(
@@ -48,7 +54,15 @@ def edit_publication(request, pub_id):
     categoria_id = request.data.get('categoria_id')
     estado_id = request.data.get('estado_id')
     ubicacion = request.data.get('ubicacion')
+    
+    # Manejar imágenes desde FILES (multipart/form-data) o desde data (JSON base64)
     nuevas_imagenes = request.FILES.getlist('imagenes', [])
+    
+    # Si no hay imágenes en FILES, buscar en data (puede ser un array JSON)
+    if not nuevas_imagenes:
+        imagenes_data = request.data.get('imagenes', [])
+        if imagenes_data:
+            nuevas_imagenes = imagenes_data if isinstance(imagenes_data, list) else [imagenes_data]
 
     success, msg = PublicationsService.update_publication(
         pub_id, categoria_id, estado_id, titulo, descripcion, ubicacion, nuevas_imagenes

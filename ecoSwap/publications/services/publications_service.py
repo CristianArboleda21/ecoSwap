@@ -43,17 +43,24 @@ class PublicationsService:
 
         # Guardar imágenes si existen
         if imagenes:
-            for img_base64 in imagenes:
-                format, imgstr = img_base64.split(';base64,')
-                ext = format.split('/')[-1]
-
-                file_name = f"{uuid.uuid4()}.{ext}"
-                file_data = ContentFile(base64.b64decode(imgstr), name=file_name)
-
-                PublicationImage.objects.create(
-                    publicacion=publicacion,
-                    imagen=file_data
-                )
+            for img in imagenes:
+                # Si es un archivo (desde FormData), convertir a base64
+                if hasattr(img, 'read'):
+                    img_data = img.read()
+                    img_base64 = base64.b64encode(img_data).decode('utf-8')
+                    # Determinar el tipo MIME
+                    content_type = img.content_type if hasattr(img, 'content_type') else 'image/jpeg'
+                    img_base64_string = f"data:{content_type};base64,{img_base64}"
+                    PublicationImage.objects.create(
+                        publicacion=publicacion,
+                        imagen=img_base64_string
+                    )
+                # Si ya es una cadena base64
+                elif isinstance(img, str) and 'base64' in img:
+                    PublicationImage.objects.create(
+                        publicacion=publicacion,
+                        imagen=img
+                    )
 
         return True, "Publicación creada correctamente.", publicacion.id_publicacion
 
@@ -100,7 +107,22 @@ class PublicationsService:
         # Agregar imágenes nuevas
         if nuevas_imagenes:
             for img in nuevas_imagenes:
-                PublicationImage.objects.create(publicacion=publicacion, imagen=img)
+                # Si es un archivo (desde FormData), convertir a base64
+                if hasattr(img, 'read'):
+                    img_data = img.read()
+                    img_base64 = base64.b64encode(img_data).decode('utf-8')
+                    content_type = img.content_type if hasattr(img, 'content_type') else 'image/jpeg'
+                    img_base64_string = f"data:{content_type};base64,{img_base64}"
+                    PublicationImage.objects.create(
+                        publicacion=publicacion,
+                        imagen=img_base64_string
+                    )
+                # Si ya es una cadena base64
+                elif isinstance(img, str) and 'base64' in img:
+                    PublicationImage.objects.create(
+                        publicacion=publicacion,
+                        imagen=img
+                    )
 
         return True, "Publicación actualizada correctamente."
 
