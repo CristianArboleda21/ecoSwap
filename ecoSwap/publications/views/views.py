@@ -26,9 +26,9 @@ def create_publication(request):
         if imagenes_data:
             imagenes = imagenes_data if isinstance(imagenes_data, list) else [imagenes_data]
 
-    if not titulo or not descripcion or not categoria_id or not estado_id:
+    if not titulo or not descripcion or not categoria_id or not estado_id or not condicion_id:
         return Response(
-            {"error": "Todos los campos requeridos: titulo, descripcion, categoria_id, estado_id", "status": 400},
+            {"error": "Todos los campos requeridos: titulo, descripcion, categoria_id, estado_id, condicion_id", "status": 400},
             status=status.HTTP_400_BAD_REQUEST
         )
 
