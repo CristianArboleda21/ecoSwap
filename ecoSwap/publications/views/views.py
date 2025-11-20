@@ -15,7 +15,7 @@ def create_publication(request):
     categoria_id = request.data.get('categoria_id')
     estado_id = request.data.get('estado_id')
     ubicacion = request.data.get('ubicacion')
-    imagenes = request.data.get('imagenes', [])
+    imagenes = request.data.getlist('imagenes', []) 
 
     if not titulo or not descripcion or not categoria_id or not estado_id:
         return Response(
@@ -23,16 +23,17 @@ def create_publication(request):
             status=status.HTTP_400_BAD_REQUEST
         )
 
-    success, pub_or_msg = PublicationsService.create_publication(
+    success, msg, pub_id = PublicationsService.create_publication(
         user.id, categoria_id, estado_id, titulo, descripcion, ubicacion, imagenes
     )
 
     if success:
-        serializer = PublicationsSerializer(pub_or_msg)
-        return Response({"message": "Publicación creada", "publication": serializer.data, "status": 201},
+        _, publication = PublicationsService.get_publication(pub_id)
+        serializer = PublicationsSerializer(publication)
+        return Response({"message": msg, "publication": serializer.data, "status": 201},
                         status=status.HTTP_201_CREATED)
     else:
-        return Response({"error": pub_or_msg, "status": 400}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({"error": msg, "status": 400}, status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(['PUT'])
