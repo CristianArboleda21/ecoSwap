@@ -3,7 +3,7 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
 from ..services.publications_service import PublicationsService
-from ..serializers import PublicationsSerializer
+from ..serializers import PublicationsSerializer, CategorySerializer, StateSerializer
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
@@ -149,7 +149,7 @@ def create_category(request):
 @permission_classes([AllowAny])
 def list_categories(request):
     success, categorias = PublicationsService.list_categories()
-    serializer = PublicationsService(categorias, many=True)
+    serializer = CategorySerializer(categorias, many=True)
     return Response({"categories": serializer.data, "status": 200}, status=status.HTTP_200_OK)
 
 
@@ -159,7 +159,7 @@ def get_category(request, categoria_id):
     success, categoria = PublicationsService.get_category(categoria_id)
 
     if success:
-        serializer = PublicationsService(categoria)
+        serializer = CategorySerializer(categoria)
         return Response({"category": serializer.data, "status": 200}, status=status.HTTP_200_OK)
     else:
         return Response({"error": categoria, "status": 404}, status=status.HTTP_404_NOT_FOUND)
@@ -189,7 +189,7 @@ def create_state(request):
 @permission_classes([AllowAny])
 def list_states(request):
     success, estados = PublicationsService.list_states()
-    serializer = PublicationsService(estados, many=True)
+    serializer = StateSerializer(estados, many=True)
     return Response({"states": serializer.data, "status": 200}, status=status.HTTP_200_OK)
 
 
@@ -199,7 +199,7 @@ def get_state(request, estado_id):
     success, estado = PublicationsService.get_state(estado_id)
 
     if success:
-        serializer = PublicationsService(estado)
+        serializer = StateSerializer(estado)
         return Response({"state": serializer.data, "status": 200}, status=status.HTTP_200_OK)
     else:
         return Response({"error": estado, "status": 404}, status=status.HTTP_404_NOT_FOUND)

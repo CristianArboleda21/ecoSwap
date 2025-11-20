@@ -1,9 +1,11 @@
-from comunications.services.email_service import EmailService
+import base64
+from django.core.files.base import ContentFile
+import uuid
 from django.utils import timezone
-from ..serializers import PublicationsSerializer
 from publications.models import Publications, UserApp, Category, State, PublicationImage
 from django.utils import timezone
 from ..models import Publications, FavoritePublication
+
 
 class PublicationsService:
 
@@ -41,10 +43,16 @@ class PublicationsService:
 
         # Guardar imágenes si existen
         if imagenes:
-            for img in imagenes:
+            for img_base64 in imagenes:
+                format, imgstr = img_base64.split(';base64,')
+                ext = format.split('/')[-1]
+
+                file_name = f"{uuid.uuid4()}.{ext}"
+                file_data = ContentFile(base64.b64decode(imgstr), name=file_name)
+
                 PublicationImage.objects.create(
                     publicacion=publicacion,
-                    imagen=img
+                    imagen=file_data
                 )
 
         return True, "Publicación creada correctamente.", publicacion.id_publicacion

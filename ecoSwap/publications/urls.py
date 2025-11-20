@@ -21,10 +21,10 @@ urlpatterns = [
     # Categorias
     path('categories/create', views.create_category, name='create_category'),
     path('categories/list', views.list_categories, name='list_categories'),
-    path('categories/<int:categoria_id>', views.get_category, name='get_category'),
+    path('categories/<int:categoria_id>/', views.get_category, name='get_category'),
 
     # Estados
     path('states/create', views.create_state, name='create_state'),
     path('states/list', views.list_states, name='list_states'),
-    path('states/<int:estado_id>', views.get_state, name='get_state'),
+    path('states/<int:estado_id>/', views.get_state, name='get_state'),
 ]
