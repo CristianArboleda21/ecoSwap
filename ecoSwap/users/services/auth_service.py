@@ -69,18 +69,37 @@ class AuthService:
     def update_user_profile(cls, name, username, phone, address, image, user: UserApp):
         """Actualiza el perfil del usuario"""
         try:
+            # Actualizar campos básicos del usuario
+            campos_actualizados = False
+            
             if name:
                 user.name = name
+                campos_actualizados = True
             if username:
                 user.username = username
+                campos_actualizados = True
             if phone:
                 user.phone = phone
+                campos_actualizados = True
             if address:
                 user.address = address
+                campos_actualizados = True
+            
+            # Guardar cambios básicos del usuario primero
+            if campos_actualizados:
+                user.save()
+            
+            # Procesar imagen por separado
             if image:
+                print(f"DEBUG: Tipo de imagen recibida: {type(image)}")
+                print(f"DEBUG: Es string: {isinstance(image, str)}")
+                if isinstance(image, str):
+                    print(f"DEBUG: Primeros 50 caracteres: {image[:50]}")
+                
                 imagen_delete = ImagesUsers.objects.filter(user=user)
                 if imagen_delete.exists():
                     imagen_delete.delete()
+                    print(f"DEBUG: Imagen anterior eliminada")
 
                 MAX_IMAGE_SIZE = 10 * 1024 * 1024
                 
@@ -105,26 +124,38 @@ class AuthService:
 
                     # Si ya es una cadena base64
                     elif isinstance(image, str):
-                        # Validar que contenga base64
-                        if 'base64' not in image:
-                            return False, "Formato de imagen inválido"
-                        
                         # Validar tamaño aproximado de la cadena
                         if len(image) > MAX_IMAGE_SIZE * 1.5:  # Base64 aumenta ~33% el tamaño
                             return False, f"La imagen es demasiado grande. Tamaño máximo: 10MB"
+                        
+                        # Si no tiene el prefijo data:image, agregarlo
+                        if not image.startswith('data:'):
+                            # Intentar detectar el tipo de imagen por los primeros caracteres
+                            if image.startswith('iVBOR'):
+                                image = f"data:image/png;base64,{image}"
+                            elif image.startswith('/9j/'):
+                                image = f"data:image/jpeg;base64,{image}"
+                            elif image.startswith('R0lGOD'):
+                                image = f"data:image/gif;base64,{image}"
+                            else:
+                                # Por defecto, asumir PNG
+                                image = f"data:image/png;base64,{image}"
                         
                         imagen = ImagesUsers.objects.create(
                             user=user,
                             image=image
                         )
                         imagen.save()
+                        print(f"DEBUG: Imagen guardada exitosamente. ID: {imagen.id}")
 
                 except Exception as img_error:
-                    # Log del error pero continuar con otras imágenes
+                    # Log del error pero continuar
                     print(f"Error procesando imagen: {str(img_error)}")
+                    # Si hubo cambios en los campos básicos, ya se guardaron
+                    if campos_actualizados:
+                        return True, "Perfil actualizado (sin imagen por error en procesamiento)"
                     return False, f"Error al procesar la imagen: {str(img_error)}"
             
-            user.save()
             return True, "Perfil actualizado exitosamente"
         
         except Exception as e:

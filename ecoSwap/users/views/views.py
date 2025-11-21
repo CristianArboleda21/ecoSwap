@@ -257,7 +257,11 @@ def edit_user_profile(request):
         username = request.data.get('username', None)
         phone = request.data.get('phone', None)
         address = request.data.get('address', None)
+        
+        # La imagen puede venir como archivo (FILES) o como string base64 (data)
         image = request.FILES.get('image', None)
+        if not image:
+            image = request.data.get('image', None)
 
         success, msg = AuthService.update_user_profile(
             name, username, phone, address, image, user
