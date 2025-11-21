@@ -208,14 +208,16 @@ def get_user_profile_by_email(request):
             user = UserApp.objects.get(email=user_id)
         
         publications = Publications.objects.filter(user=user.id)
+        image = ImagesUsers.objects.filter(user=user)
 
         # Serializar las publicaciones con toda su estructura
         serializer_publications = PublicationsSerializer(publications, many=True)
-
         serializer_user = UserAppSerializer(user)
+        serializer_image = ImagesUsersSerializer(image, many=True)
 
         data = {
             'user': serializer_user.data,
+            'image': serializer_image.data,
             'publications': serializer_publications.data
         }
         return Response(data, status=status.HTTP_200_OK)
@@ -229,6 +231,52 @@ def get_user_profile_by_email(request):
     except Exception as e:
         return Response(
             {"error": f"Error al obtener perfil: {str(e)}", "status": 500},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_user_by_id(request):
+    """
+    Obtiene la información de un usuario por su ID
+    """
+    try:
+        user_id = request.query_params.get('id', '')
+        
+        if not user_id:
+            return Response(
+                {"error": "El parámetro 'id' es requerido", "status": 400},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        user = UserApp.objects.get(id=int(user_id))
+        image = ImagesUsers.objects.filter(user=user)
+        
+        serializer_user = UserAppSerializer(user)
+        serializer_image = ImagesUsersSerializer(image, many=True)
+        
+        data = {
+            'user': serializer_user.data,
+            'image': serializer_image.data
+        }
+        return Response(data, status=status.HTTP_200_OK)
+    
+    except ValueError:
+        return Response(
+            {"error": "El ID debe ser un número válido", "status": 400},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+    
+    except UserApp.DoesNotExist:
+        return Response(
+            {"error": "No existe un usuario con ese ID", "status": 404},
+            status=status.HTTP_404_NOT_FOUND
+        )
+    
+    except Exception as e:
+        return Response(
+            {"error": f"Error al obtener usuario: {str(e)}", "status": 500},
             status=status.HTTP_500_INTERNAL_SERVER_ERROR
         )
 
