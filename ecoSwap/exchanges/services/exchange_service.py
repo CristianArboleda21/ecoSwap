@@ -24,8 +24,8 @@ class ExchangeService:
         )
 
         publication_request = Publications.objects.get(id=request_item)
-        publication_name = publication_request.title
-        publication_image = publication_request.description
+        publication_name = publication_request.titulo
+        publication_image = publication_request.descripcion
 
         user = publication_request.user
         email_user = user.email
@@ -44,12 +44,12 @@ class ExchangeService:
             publication_offered = Publications.objects.get(id=exchange.offered_item.id)
 
             user_request = publication_request.user
-            title_request = publication_request.title
-            image_request = publication_request.description
+            title_request = publication_request.titulo
+            image_request = publication_request.descripcion
 
             user_offered = publication_offered.user
-            title_offered = publication_offered.title
-            image_offered = publication_offered.description
+            title_offered = publication_offered.titulo
+            image_offered = publication_offered.descripcion
 
         except Exchange.DoesNotExist:
             return False, "La oferta de intercambio no existe."
@@ -116,10 +116,10 @@ class ExchangeService:
             user_request.name,
             responder_name=user_offered.name,
             status_label=exchange.status,
-            request_title=publication_request.title,
-            request_image=publication_request.description,
-            offered_title=publication_offered.title,
-            offered_image=publication_offered.description,
+            request_title=publication_request.titulo,
+            request_image=publication_request.descripcion,
+            offered_title=publication_offered.titulo,
+            offered_image=publication_offered.descripcion,
             extra_message=reason
         )
         
