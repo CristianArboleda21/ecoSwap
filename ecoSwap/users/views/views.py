@@ -198,8 +198,15 @@ def logout(request):
 def get_user_profile_by_email(request):
 
     try:
-        email = request.query_params.get('email', '')
-        user = UserApp.objects.get(email=email)
+        user_id = request.query_params.get('email', '')
+        
+        # Intentar obtener usuario por ID
+        try:
+            user = UserApp.objects.get(id=int(user_id))
+        except (ValueError, UserApp.DoesNotExist):
+            # Si falla, intentar por email (para mantener compatibilidad)
+            user = UserApp.objects.get(email=user_id)
+        
         publications =  Publications.objects.filter(user=user.id).values()
 
         publication_user_data = []
@@ -232,7 +239,7 @@ def get_user_profile_by_email(request):
 
     except UserApp.DoesNotExist:
         return Response(
-            {"error": "No existe un usuario con ese email.", "status": 404},
+            {"error": "No existe un usuario con ese ID o email.", "status": 404},
             status=status.HTTP_404_NOT_FOUND
         )
 
