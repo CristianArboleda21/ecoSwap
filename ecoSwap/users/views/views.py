@@ -207,33 +207,16 @@ def get_user_profile_by_email(request):
             # Si falla, intentar por email (para mantener compatibilidad)
             user = UserApp.objects.get(email=user_id)
         
-        publications =  Publications.objects.filter(user=user.id).values()
+        publications = Publications.objects.filter(user=user.id)
 
-        publication_user_data = []
+        # Serializar las publicaciones con toda su estructura
+        serializer_publications = PublicationsSerializer(publications, many=True)
 
-        for publication in publications:
-            category = publication['categoria_id']
-            state = publication['estado_id']
-            category_name = Category.objects.get(id=category).nombre if category else None
-            state_name = State.objects.get(id=state).nombre if state else None
-
-            data_publication = {
-                'id': publication['id'],
-                'titulo': publication['titulo'],
-                'descripcion': publication['descripcion'],
-                'ubicacion': publication['ubicacion'],
-                'fecha_publicacion': publication['fecha_publicacion'],
-                'categoria': category_name,
-                'estado': state_name
-            }  
-
-            publication_user_data.append(data_publication)      
-
-        serializer = UserAppSerializer(user)
+        serializer_user = UserAppSerializer(user)
 
         data = {
-            'user': serializer.data,
-            'publications': publication_user_data
+            'user': serializer_user.data,
+            'publications': serializer_publications.data
         }
         return Response(data, status=status.HTTP_200_OK)
 
