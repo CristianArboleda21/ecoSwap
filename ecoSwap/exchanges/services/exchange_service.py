@@ -151,7 +151,7 @@ class ExchangeService:
                         requested_item__user__email=email_user,
                         status=Exchange.Status.CANCELLED
                     )
-            elif status_filter == "in_progress":
+            elif status_filter == "pending" or status_filter == "in_progress":
                 if exchanges_type == "offered":
                     exchanges = Exchange.objects.filter(
                         offered_item__user__email=email_user,
@@ -161,6 +161,16 @@ class ExchangeService:
                     exchanges = Exchange.objects.filter(
                         requested_item__user__email=email_user,
                         status=Exchange.Status.PENDING
+                    )
+            else:
+                # Si no hay filtro de status, devolver todos
+                if exchanges_type == "offered":
+                    exchanges = Exchange.objects.filter(
+                        offered_item__user__email=email_user
+                    )
+                else:  # requested o received
+                    exchanges = Exchange.objects.filter(
+                        requested_item__user__email=email_user
                     )
         except Exception as e:
             return []
